@@ -1,4 +1,4 @@
-# Roccia Cup App
+# 🏆 Roccia Cup App
 
 이 앱은 로씨아 대회의 개개인의 점수를 계산, 팀 랭킹을 실시간으로 제공하는 앱입니다.
 
