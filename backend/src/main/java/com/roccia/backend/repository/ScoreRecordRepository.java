@@ -11,7 +11,7 @@ public interface ScoreRecordRepository extends JpaRepository<ScoreRecord, Long> 
 
     List<ScoreRecord> findByUser(User user);
 
-    Optional<ScoreRecord> findByUserAndSector(User user, String sector);
+    Optional<ScoreRecord> findByUserAndSector(User user, int sector);
 
     void deleteByUser(User user);
 }

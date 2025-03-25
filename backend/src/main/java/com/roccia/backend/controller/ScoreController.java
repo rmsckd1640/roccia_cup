@@ -22,7 +22,7 @@ public class ScoreController {
     @PostMapping("/submit")
     public ResponseEntity<?> submitScore(@RequestParam String teamName,
                                          @RequestParam String userName,
-                                         @RequestParam String sector,
+                                         @RequestParam int sector,
                                          @RequestParam int score) {
 
         User user = userService.find(teamName, userName)
@@ -46,7 +46,7 @@ public class ScoreController {
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteScore(@RequestParam String teamName,
                                             @RequestParam String userName,
-                                            @RequestParam String sector) {
+                                            @RequestParam int sector) {
         User user = userService.find(teamName, userName)
                 .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
 

@@ -15,7 +15,7 @@ public class ScoreService {
 
     private final ScoreRecordRepository scoreRecordRepository;
 
-    public ScoreRecord submitScore(User user, String sector, int score) {
+    public ScoreRecord submitScore(User user, int sector, int score) {
         if (scoreRecordRepository.findByUserAndSector(user, sector).isPresent()) {
             throw new IllegalArgumentException("이미 이 섹터에 점수를 입력했습니다.");
         }
@@ -31,7 +31,7 @@ public class ScoreService {
         return scoreRecordRepository.findByUser(user);
     }
 
-    public void deleteScore(User user, String sector) {
+    public void deleteScore(User user, int sector) {
         Optional<ScoreRecord> scoreOpt = scoreRecordRepository.findByUserAndSector(user, sector);
         scoreOpt.ifPresent(scoreRecordRepository::delete);
     }

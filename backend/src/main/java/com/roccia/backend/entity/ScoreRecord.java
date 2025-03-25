@@ -24,7 +24,7 @@ public class ScoreRecord {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private String sector;
+    private int sector;
 
     private int score;
 
