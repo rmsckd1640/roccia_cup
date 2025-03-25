@@ -28,5 +28,6 @@ public class ScoreRecord {
 
     private int score;
 
+    @Column(name = "submitted_at")
     private LocalDateTime submittedAt = LocalDateTime.now();
 }

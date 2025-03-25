@@ -17,9 +17,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "team_name")
     private String teamName;
 
+    @Column(name = "user_name")
     private String userName;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }
