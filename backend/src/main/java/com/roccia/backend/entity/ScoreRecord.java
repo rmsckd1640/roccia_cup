@@ -30,4 +30,9 @@ public class ScoreRecord {
 
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt = LocalDateTime.now();
+
+    @PrePersist
+    protected void onCreate() {
+        this.submittedAt = LocalDateTime.now();
+    }
 }
