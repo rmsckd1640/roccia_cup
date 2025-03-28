@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
 
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -13,23 +16,40 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _teamController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
 
-  void _login() async{
+  void _login() async {
     final teamName = _teamController.text.trim();
     final userName = _nameController.text.trim();
 
-    if (teamName.isNotEmpty && userName.isNotEmpty) {
+    if (teamName.isEmpty || userName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('팀명과 이름을 모두 입력해주세요')),
+      );
+      return;
+    }
+
+    final url = Uri.parse('http://localhost:8080/api/users/login'); // 여기 IP는 본인 IP로 변경!
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'teamName': teamName,
+        'userName': userName,
+      }),
+    );
+
+    if (response.statusCode == 200) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('teamName', teamName);
       await prefs.setString('userName', userName);
+      // 필요하면 userId, createdAt 등도 저장 가능
 
-      // 다음 화면으로 이동
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('팀명과 이름을 모두 입력해주세요')),
+        const SnackBar(content: Text('로그인 실패. 서버를 확인해주세요.')),
       );
     }
   }
