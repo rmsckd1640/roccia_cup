@@ -3,6 +3,7 @@ package com.roccia.backend.service;
 import com.roccia.backend.entity.ScoreRecord;
 import com.roccia.backend.entity.User;
 import com.roccia.backend.repository.ScoreRecordRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,7 @@ public class ScoreService {
         return scoreRecordRepository.findByUser(user);
     }
 
+    @Transactional
     public void deleteScore(User user, int sector) {
         Optional<ScoreRecord> scoreOpt = scoreRecordRepository.findByUserAndSector(user, sector);
         scoreOpt.ifPresent(scoreRecordRepository::delete);

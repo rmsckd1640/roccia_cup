@@ -2,6 +2,7 @@ package com.roccia.backend.service;
 
 import com.roccia.backend.entity.User;
 import com.roccia.backend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class UserService {
                         .userName(userName)
                         .build()));
     }
-
+    @Transactional
     public void logout(String teamName, String userName) {
         userRepository.deleteByTeamNameAndUserName(teamName, userName);
     }
