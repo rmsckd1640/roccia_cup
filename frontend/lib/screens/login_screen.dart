@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,13 +13,20 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _teamController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
 
-  void _login() {
+  void _login() async{
     final teamName = _teamController.text.trim();
     final userName = _nameController.text.trim();
 
     if (teamName.isNotEmpty && userName.isNotEmpty) {
-      // TODO: 서버에 로그인 요청 보내기 or 다음 화면으로 이동
-      print('로그인: 팀명 = $teamName / 이름 = $userName');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('teamName', teamName);
+      await prefs.setString('userName', userName);
+
+      // 다음 화면으로 이동
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('팀명과 이름을 모두 입력해주세요')),
