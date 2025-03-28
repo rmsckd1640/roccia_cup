@@ -1,6 +1,7 @@
 package com.roccia.backend.controller;
 
 import com.roccia.backend.entity.User;
+import com.roccia.backend.request.UserRequest;
 import com.roccia.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,16 +16,15 @@ public class UserController {
 
     // 로그인 (있으면 반환, 없으면 생성)
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestParam String teamName,
-                                      @RequestParam String userName) {
-        User user = userService.loginOrCreateUser(teamName, userName);
+    public ResponseEntity<User> login(@RequestBody UserRequest request) {
+        User user = userService.loginOrCreateUser(request.getTeamName(), request.getUserName());
         return ResponseEntity.ok(user);
     }
 
     // 로그아웃 (유저 + 점수 모두 삭제)
     @DeleteMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestParam String teamName,
-                                       @RequestParam String userName) {
+    public ResponseEntity<Void> logout(@RequestBody String teamName,
+                                       @RequestBody String userName) {
         userService.logout(teamName, userName);
         return ResponseEntity.noContent().build();
     }

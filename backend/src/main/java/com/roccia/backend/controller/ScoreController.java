@@ -20,10 +20,10 @@ public class ScoreController {
 
     // 점수 제출
     @PostMapping("/submit")
-    public ResponseEntity<?> submitScore(@RequestParam String teamName,
-                                         @RequestParam String userName,
-                                         @RequestParam int sector,
-                                         @RequestParam int score) {
+    public ResponseEntity<?> submitScore(@RequestBody String teamName,
+                                         @RequestBody String userName,
+                                         @RequestBody int sector,
+                                         @RequestBody int score) {
 
         User user = userService.find(teamName, userName)
                 .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
@@ -34,8 +34,8 @@ public class ScoreController {
 
     // 사용자 점수 조회
     @GetMapping("/user")
-    public ResponseEntity<List<ScoreRecord>> getUserScores(@RequestParam String teamName,
-                                                           @RequestParam String userName) {
+    public ResponseEntity<List<ScoreRecord>> getUserScores(@RequestBody String teamName,
+                                                           @RequestBody String userName) {
         User user = userService.find(teamName, userName)
                 .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
 
@@ -44,9 +44,9 @@ public class ScoreController {
 
     // 특정 섹터 점수 삭제
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteScore(@RequestParam String teamName,
-                                            @RequestParam String userName,
-                                            @RequestParam int sector) {
+    public ResponseEntity<Void> deleteScore(@RequestBody String teamName,
+                                            @RequestBody String userName,
+                                            @RequestBody int sector) {
         User user = userService.find(teamName, userName)
                 .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
 
