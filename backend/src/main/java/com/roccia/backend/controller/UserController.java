@@ -23,9 +23,8 @@ public class UserController {
 
     // 로그아웃 (유저 + 점수 모두 삭제)
     @DeleteMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody String teamName,
-                                       @RequestBody String userName) {
-        userService.logout(teamName, userName);
+    public ResponseEntity<Void> logout(@RequestBody UserRequest request) {
+        userService.logout(request.getTeamName(), request.getUserName());
         return ResponseEntity.noContent().build();
     }
 }

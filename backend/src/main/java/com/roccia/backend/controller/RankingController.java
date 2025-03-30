@@ -4,6 +4,7 @@ import com.roccia.backend.entity.ScoreRecord;
 import com.roccia.backend.entity.User;
 import com.roccia.backend.repository.ScoreRecordRepository;
 import com.roccia.backend.repository.UserRepository;
+import com.roccia.backend.request.UserRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,8 @@ public class RankingController {
     private final UserRepository userRepository;
     private final ScoreRecordRepository scoreRecordRepository;
 
-    @GetMapping
-    public ResponseEntity<List<Map<String, Object>>> getTeamRankings() {
+    @PostMapping
+    public ResponseEntity<List<Map<String, Object>>> getTeamRankings(@RequestBody UserRequest request) {
         List<User> users = userRepository.findAll();
         Map<String, Integer> teamScores = new HashMap<>();
 
