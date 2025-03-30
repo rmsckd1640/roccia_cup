@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,27 +17,76 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Map<String, dynamic>> scoreList = [];
 
-  void _submitScore() {
+  void _submitScore() async {
     final sector = _sectorController.text.trim();
     final score = _scoreController.text.trim();
 
     if (sector.isEmpty || score.isEmpty) return;
 
-    setState(() {
-      scoreList.add({
-        'sector': sector,
-        'score': score,
-      });
-    });
+    final prefs = await SharedPreferences.getInstance();
+    final teamName = prefs.getString('teamName');
+    final userName = prefs.getString('userName');
 
-    _sectorController.clear();
-    _scoreController.clear();
+    if (teamName == null || userName == null) return;
+
+    final url = Uri.parse('http://localhost:8080/api/scores/submit');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'teamName': teamName,
+        'userName': userName,
+        'sector': int.parse(sector),
+        'score': int.parse(score),
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        scoreList.add({
+          'sector': sector,
+          'score': score,
+        });
+      });
+
+      _sectorController.clear();
+      _scoreController.clear();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('점수가 제출되었습니다!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('제출 실패! 서버를 확인해주세요')),
+      );
+    }
   }
 
-  void _deleteScore(int index) {
-    setState(() {
-      scoreList.removeAt(index);
-    });
+  void _deleteScore(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    final teamName = prefs.getString('teamName');
+    final userName = prefs.getString('userName');
+    final sector = scoreList[index]['sector'];
+
+    if (teamName == null || userName == null) return;
+
+    final url = Uri.parse(
+        'http://localhost:8080/api/scores/delete?teamName=$teamName&userName=$userName&sector=$sector');
+
+    final response = await http.delete(url);
+
+    if (response.statusCode == 204) {
+      setState(() {
+        scoreList.removeAt(index);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('점수가 삭제되었습니다!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('삭제 실패! 서버를 확인해주세요')),
+      );
+    }
   }
 
   Future<void> _logout() async {
