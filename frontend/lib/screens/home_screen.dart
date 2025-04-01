@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'login_screen.dart';
+import 'ranking_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -155,7 +156,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // TODO: 팀 랭킹 화면으로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const RankingScreen()),
+                    );
                   },
                   child: const Text('팀 랭킹 보기'),
                 ),
