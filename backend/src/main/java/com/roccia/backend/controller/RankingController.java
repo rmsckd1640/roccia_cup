@@ -20,7 +20,7 @@ public class RankingController {
     private final UserRepository userRepository;
     private final ScoreRecordRepository scoreRecordRepository;
 
-    @PostMapping
+    @PostMapping(produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<Map<String, Object>>> getTeamRankings(@RequestBody UserRequest request) {
         List<User> users = userRepository.findAll();
         Map<String, Integer> teamScores = new HashMap<>();
