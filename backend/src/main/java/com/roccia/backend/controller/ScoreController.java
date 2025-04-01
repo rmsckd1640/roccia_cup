@@ -40,10 +40,10 @@ public class ScoreController {
     }
 
     // 특정 섹터 점수 삭제
-    @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteScore(@RequestParam String teamName,
-                                            @RequestParam String userName,
-                                            @RequestParam int sector) {
+    @DeleteMapping("/delete/{teamName}/{userName}/{sector}")
+    public ResponseEntity<Void> deleteScore(@PathVariable String teamName,
+                                            @PathVariable String userName,
+                                            @PathVariable int sector) {
         User user = userService.find(teamName, userName)
                 .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
 
