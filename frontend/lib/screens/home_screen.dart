@@ -92,11 +92,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
+    final teamName = prefs.getString('teamName');
+    final userName = prefs.getString('userName');
+
+    if (teamName == null || userName == null) return;
+
+    final url = Uri.parse('http://localhost:8080/api/users/logout/$teamName/$userName');
+    final response = await http.delete(url);
+
+    if (response.statusCode == 204) {
+      await prefs.clear();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('로그아웃 실패! 서버를 확인해주세요')),
+      );
+    }
   }
 
   @override
