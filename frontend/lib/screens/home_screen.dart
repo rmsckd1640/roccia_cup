@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (teamName == null || userName == null) return;
 
     final url = Uri.parse(
-        'http://localhost:8080/api/scores/delete?teamName=$teamName&userName=$userName&sector=$sector');
+        'http://localhost:8080/api/scores/delete/$teamName/$userName/$sector');
 
     final response = await http.delete(url);
 
