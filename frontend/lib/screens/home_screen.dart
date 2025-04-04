@@ -18,6 +18,38 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Map<String, dynamic>> scoreList = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserScores();
+  }
+
+  Future<void> _fetchUserScores() async {
+    final prefs = await SharedPreferences.getInstance();
+    final teamName = prefs.getString('teamName');
+    final userName = prefs.getString('userName');
+
+    if (teamName == null || userName == null) return;
+
+    final url = Uri.parse(
+        'http://localhost:8080/api/scores/user?teamName=$teamName&userName=$userName');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        scoreList = data.map((item) => {
+          'sector': item['sector'].toString(),
+          'score': item['score'].toString(),
+        }).toList();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('점수 목록 불러오기 실패')),
+      );
+    }
+  }
+
   void _submitScore() async {
     final sector = _sectorController.text.trim();
     final score = _scoreController.text.trim();
@@ -43,6 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (response.statusCode == 200) {
+
+      await _fetchUserScores();
+
       setState(() {
         scoreList.add({
           'sector': sector,
