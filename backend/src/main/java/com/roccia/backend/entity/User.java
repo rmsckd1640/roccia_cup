@@ -23,6 +23,8 @@ public class User {
     @Column(name = "user_name")
     private String userName;
 
+    private String role; // LEADER 또는 MEMBER
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 

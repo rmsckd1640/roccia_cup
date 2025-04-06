@@ -14,11 +14,12 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public User loginOrCreateUser(String teamName, String userName) {
+    public User loginOrCreateUser(String teamName, String userName, String role) {
         return userRepository.findByTeamNameAndUserName(teamName, userName)
                 .orElseGet(() -> userRepository.save(User.builder()
                         .teamName(teamName)
                         .userName(userName)
+                        .role(role)
                         .build()));
     }
     @Transactional

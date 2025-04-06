@@ -17,7 +17,7 @@ public class UserController {
     // 로그인 (있으면 반환, 없으면 생성)
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody UserRequest request) {
-        User user = userService.loginOrCreateUser(request.getTeamName(), request.getUserName());
+        User user = userService.loginOrCreateUser(request.getTeamName(), request.getUserName(), request.getRole());
         return ResponseEntity.ok(user);
     }
 
