@@ -1,2 +1,15 @@
-application.properties
+.idea/
+.vscocd/
+*.iml
+build/
+target/
 .DS_Store
+Thumbs.db
+application.properties
+.flutter-plugins
+.flutter-plugins-dependencies
+.dart_tool/
+.packages
+.pub-cache/
+pubspec.lock
+.env
