@@ -15,10 +15,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _sectorController = TextEditingController();
   final TextEditingController _scoreController = TextEditingController();
-  final TextEditingController _enduranceController = TextEditingController(); // 💡 지구력 점수용 컨트롤러
+  final TextEditingController _enduranceController = TextEditingController();
 
   List<Map<String, dynamic>> scoreList = [];
-  String? _role; // 💡 역할 저장용 변수
+  String? _role;
 
   @override
   void initState() {
@@ -63,7 +63,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _submitScore() async {
     final sector = _sectorController.text.trim();
     final score = _scoreController.text.trim();
-    final enduranceScore = _enduranceController.text.trim();
 
     if (sector.isEmpty || score.isEmpty) return;
 
@@ -87,42 +86,65 @@ class _HomeScreenState extends State<HomeScreen> {
       body: jsonEncode(body),
     );
 
-    // 💡 지구력 점수도 같이 전송
-    if (_role == 'LEADER' && enduranceScore.isNotEmpty) {
-      final enduranceResponse = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'teamName': teamName,
-          'userName': userName,
-          'sector': 99, // 지구력은 특별한 섹터 번호(예: 99)로 구분
-          'score': int.parse(enduranceScore),
-        }),
+    if (response.statusCode == 200) {
+      await _fetchUserScores();
+      _sectorController.clear();
+      _scoreController.clear();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('점수가 제출되었습니다!')),
       );
-      if (enduranceResponse.statusCode != 200) {
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('제출 실패! 서버를 확인해주세요')),
+      );
+    }
+  }
+
+  void _submitEnduranceScore() async {
+    final enduranceScore = _enduranceController.text.trim();
+    if (enduranceScore.isEmpty) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final teamName = prefs.getString('teamName');
+    final userName = prefs.getString('userName');
+
+    if (teamName == null || userName == null) return;
+
+    final checkUrl = Uri.parse(
+        'http://localhost:8080/api/scores/user?teamName=$teamName&userName=$userName');
+    final checkRes = await http.get(checkUrl);
+
+    if (checkRes.statusCode == 200) {
+      final List<dynamic> existingScores = jsonDecode(checkRes.body);
+      final alreadyExists = existingScores.any((item) => item['sector'].toString() == '99');
+
+      if (alreadyExists) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('지구력 점수 제출 실패')),
+          const SnackBar(content: Text('이미 지구력 점수를 제출하셨습니다!')),
         );
         return;
       }
     }
 
+    final submitUrl = Uri.parse('http://localhost:8080/api/scores/submit');
+    final response = await http.post(
+      submitUrl,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'teamName': teamName,
+        'userName': userName,
+        'sector': 99,
+        'score': int.parse(enduranceScore),
+      }),
+    );
+
     if (response.statusCode == 200) {
       await _fetchUserScores();
-
-      setState(() {
-        scoreList.add({
-          'sector': sector,
-          'score': score,
-        });
-      });
-
-      _sectorController.clear();
-      _scoreController.clear();
-      _enduranceController.clear(); // 💡 지구력 점수도 초기화
+      _enduranceController.clear();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('점수가 제출되었습니다!')),
+        const SnackBar(content: Text('지구력 점수가 제출되었습니다!')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -214,11 +236,16 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             if (_role == 'LEADER') ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               TextField(
                 controller: _enduranceController,
                 decoration: const InputDecoration(labelText: '지구력 점수 (팀장만)'),
                 keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: _submitEnduranceScore,
+                child: const Text('지구력 점수 제출'),
               ),
             ],
             const SizedBox(height: 24),
@@ -232,6 +259,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       item['sector'] == '99'
                           ? '지구력 - 점수: ${item['score']}'
                           : '섹터 ${item['sector']} - 점수: ${item['score']}',
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => _deleteScore(index),
                     ),
                   );
                 },
