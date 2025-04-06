@@ -15,13 +15,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _sectorController = TextEditingController();
   final TextEditingController _scoreController = TextEditingController();
+  final TextEditingController _enduranceController = TextEditingController(); // 💡 지구력 점수용 컨트롤러
 
   List<Map<String, dynamic>> scoreList = [];
+  String? _role; // 💡 역할 저장용 변수
 
   @override
   void initState() {
     super.initState();
+    _loadUserRole();
     _fetchUserScores();
+  }
+
+  Future<void> _loadUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _role = prefs.getString('role') ?? 'MEMBER';
+    });
   }
 
   Future<void> _fetchUserScores() async {
@@ -53,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _submitScore() async {
     final sector = _sectorController.text.trim();
     final score = _scoreController.text.trim();
+    final enduranceScore = _enduranceController.text.trim();
 
     if (sector.isEmpty || score.isEmpty) return;
 
@@ -63,19 +74,40 @@ class _HomeScreenState extends State<HomeScreen> {
     if (teamName == null || userName == null) return;
 
     final url = Uri.parse('http://localhost:8080/api/scores/submit');
+    final body = {
+      'teamName': teamName,
+      'userName': userName,
+      'sector': int.parse(sector),
+      'score': int.parse(score),
+    };
+
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'teamName': teamName,
-        'userName': userName,
-        'sector': int.parse(sector),
-        'score': int.parse(score),
-      }),
+      body: jsonEncode(body),
     );
 
-    if (response.statusCode == 200) {
+    // 💡 지구력 점수도 같이 전송
+    if (_role == 'LEADER' && enduranceScore.isNotEmpty) {
+      final enduranceResponse = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'teamName': teamName,
+          'userName': userName,
+          'sector': 99, // 지구력은 특별한 섹터 번호(예: 99)로 구분
+          'score': int.parse(enduranceScore),
+        }),
+      );
+      if (enduranceResponse.statusCode != 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('지구력 점수 제출 실패')),
+        );
+        return;
+      }
+    }
 
+    if (response.statusCode == 200) {
       await _fetchUserScores();
 
       setState(() {
@@ -87,6 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       _sectorController.clear();
       _scoreController.clear();
+      _enduranceController.clear(); // 💡 지구력 점수도 초기화
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('점수가 제출되었습니다!')),
@@ -180,6 +213,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+            if (_role == 'LEADER') ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: _enduranceController,
+                decoration: const InputDecoration(labelText: '지구력 점수 (팀장만)'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
             const SizedBox(height: 24),
             Expanded(
               child: ListView.builder(
@@ -187,10 +228,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   final item = scoreList[index];
                   return ListTile(
-                    title: Text('섹터 ${item['sector']} - 점수: ${item['score']}'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _deleteScore(index),
+                    title: Text(
+                      item['sector'] == '99'
+                          ? '지구력 - 점수: ${item['score']}'
+                          : '섹터 ${item['sector']} - 점수: ${item['score']}',
                     ),
                   );
                 },
