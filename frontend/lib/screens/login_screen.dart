@@ -17,19 +17,23 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _nameController = TextEditingController();
 
   String _selectedRole = 'MEMBER'; // 기본값: 팀원
+  String? _errorText; // 에러 메시지 상태
+  String? _teamErrorText;
+  String? _nameErrorText;
+
 
   void _login() async {
     final teamName = _teamController.text.trim();
     final userName = _nameController.text.trim();
 
-    if (teamName.isEmpty || userName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('팀명과 이름을 모두 입력해주세요')),
-      );
-      return;
-    }
+    setState(() {
+      _teamErrorText = teamName.isEmpty ? '팀명을 입력해주세요' : null;
+      _nameErrorText = userName.isEmpty ? '이름을 입력해주세요' : null;
+    });
 
-    final url = Uri.parse('http://localhost:8080/api/users/login'); // 여기 IP는 실제 IP로 바꾸기!
+    if (teamName.isEmpty || userName.isEmpty) return;
+
+    final url = Uri.parse('http://localhost:8080/api/users/login'); // 실제 IP로 변경
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -44,23 +48,30 @@ class _LoginScreenState extends State<LoginScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('teamName', teamName);
       await prefs.setString('userName', userName);
-      await prefs.setString('role', _selectedRole); // 역할도 저장
+      await prefs.setString('role', _selectedRole);
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('로그인 실패. 서버를 확인해주세요.')),
-      );
+      setState(() {
+        _errorText = '로그인 실패. 서버를 확인해주세요.';
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('로그인')),
+      appBar: AppBar(
+        title: const Text(
+          'Login',
+
+        ),
+        backgroundColor: Color(0xCB9850F3),
+        elevation: 4,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -68,15 +79,22 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             TextField(
               controller: _teamController,
-              decoration: const InputDecoration(labelText: '팀명'),
+              decoration: InputDecoration(
+                labelText: '팀명',
+                errorText: _teamErrorText,
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: '이름'),
+              decoration: InputDecoration(
+                labelText: '이름',
+                errorText: _nameErrorText,
+              ),
             ),
-            const SizedBox(height: 24),
-            const Text('역할 선택', style: TextStyle(fontWeight: FontWeight.bold)),
+
+
+
             Row(
               children: [
                 Expanded(

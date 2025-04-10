@@ -21,7 +21,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Roccia Cup',
-      theme: ThemeData(primarySwatch: Colors.teal),
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        fontFamily: 'Pretendard',
+      ),
       debugShowCheckedModeBanner: false,
       home: FutureBuilder<bool>(
         future: checkLoginStatus(),
