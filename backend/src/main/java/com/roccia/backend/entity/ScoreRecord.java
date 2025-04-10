@@ -29,7 +29,7 @@ public class ScoreRecord {
     private int score;
 
     @Column(name = "submitted_at")
-    private LocalDateTime submittedAt = LocalDateTime.now();
+    private LocalDateTime submittedAt;
 
     @PrePersist
     protected void onCreate() {

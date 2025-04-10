@@ -17,6 +17,10 @@ public class ScoreService {
     private final ScoreRecordRepository scoreRecordRepository;
 
     public ScoreRecord submitScore(User user, int sector, int score) {
+        if (sector == 99 && scoreRecordRepository.existsByUser_TeamNameAndSector(user.getTeamName(), 99)) {
+            throw new IllegalArgumentException("이미 이 팀은 지구력 점수를 입력했습니다.");
+        }
+
         if (scoreRecordRepository.findByUserAndSector(user, sector).isPresent()) {
             throw new IllegalArgumentException("이미 이 섹터에 점수를 입력했습니다.");
         }
@@ -27,6 +31,7 @@ public class ScoreService {
                 .score(score)
                 .build());
     }
+
 
     public List<ScoreRecord> getScores(User user) {
         return scoreRecordRepository.findByUser(user);

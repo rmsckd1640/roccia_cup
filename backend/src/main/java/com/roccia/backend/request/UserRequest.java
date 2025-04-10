@@ -12,5 +12,8 @@ import lombok.Setter;
 public class UserRequest {
     private String teamName;
     private String userName;
-    private String role;  // "LEADER" 또는 "MEMBER"
+    private String newTeamName;
+    private String newUserName;
+    private String role; // 옵션
+    private String newRole; //역할 수정 시 사용
 }

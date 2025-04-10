@@ -21,11 +21,10 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    // 로그아웃 (유저 + 점수 모두 삭제)
-    @DeleteMapping("/logout/{teamName}/{userName}")
-    public ResponseEntity<Void> logout(@PathVariable String teamName,
-                                       @PathVariable String userName) {
-        userService.logout(teamName, userName);
-        return ResponseEntity.noContent().build();
+    @PatchMapping("/update")
+    public ResponseEntity<User> updateUser(@RequestBody UserRequest request) {
+        User updatedUser = userService.updateUser(request);
+        return ResponseEntity.ok(updatedUser);
     }
+
 }
