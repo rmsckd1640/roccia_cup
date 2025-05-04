@@ -23,8 +23,11 @@ public class UserController {
 
     @PatchMapping("/update")
     public ResponseEntity<User> updateUser(@RequestBody UserRequest request) {
-        User updatedUser = userService.updateUser(request);
+        User updatedUser = userService.updateUser(request);  // 여기에 try-catch 있으면 안됨!
         return ResponseEntity.ok(updatedUser);
     }
+
+
+
 
 }

@@ -76,14 +76,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _submitScore() async {
-    final score = _scoreController.text.trim();
+    final scoreText = _scoreController.text.trim();
+    final parsedScore = int.tryParse(scoreText);
 
     setState(() {
-      _scoreErrorText = score.isEmpty ? '점수를 입력해주세요' : null;
+      if (scoreText.isEmpty) {
+        _scoreErrorText = '점수를 입력해주세요';
+      } else if (parsedScore == null) {
+        _scoreErrorText = '숫자를 입력해주세요';
+      } else {
+        _scoreErrorText = null;
+      }
+
       _alreadySubmitted = scoreList.any((item) => item['sector'] == _selectedSector.toString());
     });
 
-    if (_selectedSector == null || score.isEmpty || _alreadySubmitted) return;
+    if (_selectedSector == null || _scoreErrorText != null || _alreadySubmitted) return;
 
     final prefs = await SharedPreferences.getInstance();
     final teamName = prefs.getString('teamName');
@@ -96,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'teamName': teamName,
       'userName': userName,
       'sector': _selectedSector,
-      'score': int.parse(score),
+      'score': parsedScore,
     };
 
     final response = await http.post(
@@ -115,8 +123,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+
   void _submitEnduranceScore() async {
-    final enduranceScore = _enduranceController.text.trim();
+    final enduranceText = _enduranceController.text.trim();
+    final parsedEndurance = int.tryParse(enduranceText);
 
     final prefs = await SharedPreferences.getInstance();
     final teamName = prefs.getString('teamName');
@@ -127,12 +137,18 @@ class _HomeScreenState extends State<HomeScreen> {
     final alreadyExists = scoreList.any((item) => item['sector'] == '99');
 
     setState(() {
-      _enduranceErrorText = enduranceScore.isEmpty
-          ? '지구력 점수를 입력해주세요'
-          : (alreadyExists ? '중복 제출 불가!' : null);
+      if (enduranceText.isEmpty) {
+        _enduranceErrorText = '지구력 점수를 입력해주세요';
+      } else if (parsedEndurance == null) {
+        _enduranceErrorText = '숫자를 입력해주세요';
+      } else if (alreadyExists) {
+        _enduranceErrorText = '중복 제출 불가!';
+      } else {
+        _enduranceErrorText = null;
+      }
     });
 
-    if (enduranceScore.isEmpty || alreadyExists) return;
+    if (_enduranceErrorText != null) return;
 
     final submitUrl = Uri.parse('http://localhost:8080/api/scores/submit');
     final response = await http.post(
@@ -142,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'teamName': teamName,
         'userName': userName,
         'sector': 99,
-        'score': int.parse(enduranceScore),
+        'score': parsedEndurance,
       }),
     );
 
@@ -153,17 +169,14 @@ class _HomeScreenState extends State<HomeScreen> {
         _enduranceErrorText = null;
       });
     } else {
-      // 서버에서 받은 메시지 보여주기
       final responseBody = jsonDecode(response.body);
-      final errorMessage = responseBody is String
-          ? responseBody
-          : '중복 제출 불가!';
-
+      final errorMessage = responseBody is String ? responseBody : '중복 제출 불가!';
       setState(() {
         _enduranceErrorText = errorMessage;
       });
     }
   }
+
 
 
   void _deleteScore(int index) async {
@@ -270,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.setString('teamName', newTeam);
                       await prefs.setString('userName', newName);
-                      await prefs.setString('role', selectedRole); // 역할 저장
+                      await prefs.setString('role', selectedRole);
 
                       Navigator.of(context).pop();
 
@@ -282,6 +295,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       _fetchUserScores();
                     }
+                    else if (response.statusCode == 400) {
+                      // 기존 팀명/이름과 같다면, 역할만 수정하는 상황 → 저장 처리
+                      if (newTeam == _teamName && newName == _userName) {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setString('role', selectedRole);
+
+                        Navigator.of(context).pop();
+
+                        setState(() {
+                          _role = selectedRole;
+                        });
+                      } else {
+                        final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+                        final message = decoded['message'] ?? '알 수 없는 오류';
+
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: const Text('중복된 정보'),
+                            content: Text(message),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('확인'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                    }
+
+
                   },
                   child: const Text('저장', style: TextStyle(color: Colors.red)),
                 ),

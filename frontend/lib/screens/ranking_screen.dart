@@ -85,7 +85,7 @@ class _RankingScreenState extends State<RankingScreen> {
       final List<dynamic> data = jsonDecode(response.body);
       final List<Map<String, dynamic>> rawList = data.map((e) => {
         'teamName': e['teamName'],
-        'totalScore': e['totalScore'],
+        'averageScore': e['averageScore'],
       }).toList();
 
       setState(() {
@@ -99,13 +99,16 @@ class _RankingScreenState extends State<RankingScreen> {
   }
 
   List<Map<String, dynamic>> _applyRankingWithTies(List<Map<String, dynamic>> rawList) {
-    rawList.sort((a, b) => (b['totalScore'] as int).compareTo(a['totalScore'] as int));
+    rawList.sort((a, b) =>
+        (b['averageScore'].toDouble()).compareTo(a['averageScore'].toDouble()));
+
+
 
     int rank = 1;
     int count = 1;
-    int? prevScore;
+    double? prevScore;
     for (var i = 0; i < rawList.length; i++) {
-      int score = rawList[i]['totalScore'];
+      double score = rawList[i]['averageScore'];
       if (prevScore != null && score == prevScore) {
         rawList[i]['rank'] = rank;
         count++;
@@ -119,8 +122,10 @@ class _RankingScreenState extends State<RankingScreen> {
 
     _myTeamData = rawList.firstWhere(
           (team) => team['teamName'] == _myTeamName,
-      orElse: () => {},
+      orElse: () => {'teamName': _myTeamName, 'averageScore': 0.0, 'rank': null},
     );
+
+
 
     return rawList;
   }
@@ -172,7 +177,7 @@ class _RankingScreenState extends State<RankingScreen> {
   Widget _buildTeamCard(Map<String, dynamic> team,
       {bool highlight = false, String? label}) {
     final teamName = team['teamName'];
-    final totalScore = team['totalScore'];
+    final averageScore = team['averageScore'];
     final rank = team['rank'];
     final isMyTeam = teamName == _myTeamName;
 
@@ -204,7 +209,7 @@ class _RankingScreenState extends State<RankingScreen> {
             leading: medalEmoji != null
                 ? Text(medalEmoji, style: const TextStyle(fontSize: 28))
                 : Text(
-              '#$rank',
+              '$rank등',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: isMyTeam ? FontWeight.bold : FontWeight.normal,
@@ -218,7 +223,7 @@ class _RankingScreenState extends State<RankingScreen> {
               ),
             ),
             trailing: Text(
-              '총점: $totalScore',
+              '팀 평균 점수: $averageScore',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
