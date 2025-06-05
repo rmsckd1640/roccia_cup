@@ -13,3 +13,20 @@ application.properties
 .pub-cache/
 pubspec.lock
 .env
+
+# 🔐 보안 키 (절대 커밋 금지)
+*.pem
+
+# 💾 DB 백업 및 덤프
+*.sql
+
+# 🐳 도커 이미지 백업
+*.tar
+
+# 📂 아이콘 및 자동 생성된 리소스 (중복 방지, 선택적)
+frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-50x50@*.png
+frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-57x57@*.png
+frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-72x72@*.png
+
+# 🧪 실수로 생긴 파일 (예: IP 주소 포함된 이름)
+frontend/ubuntu@*
