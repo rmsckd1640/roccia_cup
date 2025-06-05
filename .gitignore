@@ -1,32 +1,52 @@
+# =====================
+# 🛠️ 개발 환경/IDE 관련
+# =====================
 .idea/
 .vscode/
 *.iml
+*.class
+out/
 build/
-target/
-.DS_Store
-Thumbs.db
-application.properties
+.gradle/
+
+# Flutter 캐시 및 툴 파일
+.dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
-.dart_tool/
 .packages
 .pub-cache/
-pubspec.lock
-.env
+.metadata
 
-# 🔐 보안 키 (절대 커밋 금지)
+# =====================
+# 📦 의존성/환경 파일
+# =====================
+pubspec.lock  # 앱이라면 커밋해도 되지만, 필요 시 유지
+application.properties
+*.env
+
+# =====================
+# 🧪 로그 및 임시파일
+# =====================
+*.log
+.DS_Store
+Thumbs.db
+
+# =====================
+# 🔐 민감 정보 및 보안 파일
+# =====================
 *.pem
+*.key
 
-# 💾 DB 백업 및 덤프
+# =====================
+# 🐳 도커 및 DB 백업
+# =====================
+*.tar
 *.sql
 
-# 🐳 도커 이미지 백업
-*.tar
-
-# 📂 아이콘 및 자동 생성된 리소스 (중복 방지, 선택적)
+# =====================
+# 📂 자동 생성된 아이콘 파일 (선택적 제외)
+# iOS 빌드시 생기는 중복 이미지 제거
+# =====================
 frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-50x50@*.png
 frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-57x57@*.png
 frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-72x72@*.png
-
-# 🧪 실수로 생긴 파일 (예: IP 주소 포함된 이름)
-frontend/ubuntu@*
