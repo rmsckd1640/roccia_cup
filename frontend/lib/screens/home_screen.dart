@@ -28,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _alreadySubmitted = false;
   String? _teamName;
   String? _userName;
+  String? _sectorErrorText;
 
   int _calculateTotalScore() {
     return scoreList
@@ -59,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (teamName == null || userName == null) return;
 
-    final url = Uri.parse('http://localhost:8080/api/scores/user?teamName=$teamName&userName=$userName');
+    final url = Uri.parse('/api/scores/user?teamName=$teamName&userName=$userName');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -80,6 +81,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final parsedScore = int.tryParse(scoreText);
 
     setState(() {
+      if (_selectedSector == null) {
+        _sectorErrorText = '섹터를 선택해주세요';
+      } else {
+        _sectorErrorText = null;
+      }
+
       if (scoreText.isEmpty) {
         _scoreErrorText = '점수를 입력해주세요';
       } else if (parsedScore == null) {
@@ -91,7 +98,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _alreadySubmitted = scoreList.any((item) => item['sector'] == _selectedSector.toString());
     });
 
-    if (_selectedSector == null || _scoreErrorText != null || _alreadySubmitted) return;
+    final hasError = _selectedSector == null || _scoreErrorText != null || _alreadySubmitted;
+    if (hasError) return;
 
     final prefs = await SharedPreferences.getInstance();
     final teamName = prefs.getString('teamName');
@@ -99,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (teamName == null || userName == null) return;
 
-    final url = Uri.parse('http://localhost:8080/api/scores/submit');
+    final url = Uri.parse('/api/scores/submit');
     final body = {
       'teamName': teamName,
       'userName': userName,
@@ -150,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (_enduranceErrorText != null) return;
 
-    final submitUrl = Uri.parse('http://localhost:8080/api/scores/submit');
+    final submitUrl = Uri.parse('https://roccia-cup.site/api/scores/submit');
     final response = await http.post(
       submitUrl,
       headers: {'Content-Type': 'application/json'},
@@ -169,8 +177,10 @@ class _HomeScreenState extends State<HomeScreen> {
         _enduranceErrorText = null;
       });
     } else {
-      final responseBody = jsonDecode(response.body);
-      final errorMessage = responseBody is String ? responseBody : '중복 제출 불가!';
+      final responseBody = response.body.isNotEmpty ? jsonDecode(response.body) : null;
+      final errorMessage = responseBody is String
+          ? responseBody
+          : '이미 팀에서 지구력 점수를 제출했습니다.';
       setState(() {
         _enduranceErrorText = errorMessage;
       });
@@ -187,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (teamName == null || userName == null) return;
 
-    final url = Uri.parse('http://localhost:8080/api/scores/delete/$teamName/$userName/$sector');
+    final url = Uri.parse('/api/scores/delete/$teamName/$userName/$sector');
     final response = await http.delete(url);
 
     if (response.statusCode == 204) {
@@ -264,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     if (newTeam.isEmpty || newName.isEmpty) return;
 
-                    final url = Uri.parse('http://localhost:8080/api/users/update');
+                    final url = Uri.parse('/api/users/update');
                     final body = {
                       'teamName': _teamName,
                       'userName': _userName,
@@ -308,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         });
                       } else {
                         final decoded = jsonDecode(utf8.decode(response.bodyBytes));
-                        final message = decoded['message'] ?? '알 수 없는 오류';
+                        final message = decoded['message'] ?? '중복된 정보 입니다!';
 
                         showDialog(
                           context: context,
@@ -344,16 +354,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Score',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          title: const Text(
+            'Score',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          backgroundColor: Color(0xCB9850F3),
+          elevation: 4,
         ),
-        backgroundColor: Color(0xCB9850F3),
-        elevation: 4,
-      ),
 
         body: Column(
           children: [
@@ -376,16 +386,61 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('팀명: $_teamName', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text.rich(
+                            TextSpan(
+                              text: '[팀명]   ',
+                              style: const TextStyle(fontSize: 16), // 기본 스타일
+                              children: [
+                                TextSpan(
+                                  text: '$_teamName',
+                                  style: const TextStyle(fontWeight: FontWeight.bold), // 사용자 정보만 굵게
+                                ),
+                              ],
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text('이름: $_userName', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text.rich(
+                            TextSpan(
+                              text: '[이름]   ',
+                              style: const TextStyle(fontSize: 16),
+                              children: [
+                                TextSpan(
+                                  text: '$_userName',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text('역할: ${_role == 'LEADER' ? '팀장' : '팀원'}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text.rich(
+                            TextSpan(
+                              text: '[역할]   ',
+                              style: const TextStyle(fontSize: 16),
+                              children: [
+                                TextSpan(
+                                  text: _role == 'LEADER' ? '팀장' : '팀원',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text('개인 총점: ${_calculateTotalScore()}점', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text.rich(
+                            TextSpan(
+                              text: '[개인 총점]   ',
+                              style: const TextStyle(fontSize: 16),
+                              children: [
+                                TextSpan(
+                                  text: '${_calculateTotalScore()}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
+
 
                     // 섹터 + 점수 입력
                     Row(
@@ -403,11 +458,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               setState(() {
                                 _selectedSector = value;
                                 _alreadySubmitted = false;
+                                _sectorErrorText = null;
                               });
                             },
                             decoration: InputDecoration(
                               labelText: '섹터 번호',
-                              errorText: _alreadySubmitted ? '중복 제출 불가!' : null,
+                              errorText: _sectorErrorText ?? (_alreadySubmitted ? '중복 제출 불가!' : null),
                             ),
                           ),
                         ),
@@ -429,29 +485,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-
-                    if (_role == 'LEADER') ...[
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _enduranceController,
-                              decoration: InputDecoration(
-                                labelText: '지구력 점수',
-                                errorText: _enduranceErrorText,
-                              ),
-                              keyboardType: TextInputType.number,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            onPressed: _submitEnduranceScore,
-                            child: const Text('제출'),
-                          ),
-                        ],
-                      ),
-                    ],
 
                     const SizedBox(height: 24),
                     Text('제출 목록', style: Theme.of(context).textTheme.titleMedium),
@@ -497,7 +530,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const RankingScreen()),
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => const RankingScreen(),
+                          transitionsBuilder: (_, animation, __, child) {
+                            return FadeTransition(opacity: animation, child: child);
+                          },
+                          transitionDuration: const Duration(milliseconds: 300),
+                        ),
                       );
                     },
                     child: const Text('실시간 팀 랭킹'),

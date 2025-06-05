@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
+
 class RankingScreen extends StatefulWidget {
   const RankingScreen({super.key});
 
@@ -14,11 +16,11 @@ class RankingScreen extends StatefulWidget {
 String? _getMedalEmojiByRank(int rank) {
   switch (rank) {
     case 1:
-      return '🥇';
+      return '1등';
     case 2:
-      return '🥈';
+      return '2등';
     case 3:
-      return '🥉';
+      return '3등';
     default:
       return null;
   }
@@ -74,7 +76,7 @@ class _RankingScreenState extends State<RankingScreen> {
     final userName = prefs.getString('userName') ?? '';
     _myTeamName = teamName;
 
-    final url = Uri.parse('http://localhost:8080/api/rankings');
+    final url = Uri.parse('/api/rankings');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -206,9 +208,7 @@ class _RankingScreenState extends State<RankingScreen> {
           elevation: 2,
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: ListTile(
-            leading: medalEmoji != null
-                ? Text(medalEmoji, style: const TextStyle(fontSize: 28))
-                : Text(
+            leading: Text(
               '$rank등',
               style: TextStyle(
                 fontSize: 18,
@@ -223,7 +223,7 @@ class _RankingScreenState extends State<RankingScreen> {
               ),
             ),
             trailing: Text(
-              '팀 평균 점수: $averageScore',
+              '팀 평균 점수: ${averageScore.toStringAsFixed(1)}',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,

@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (teamName.isEmpty || userName.isEmpty) return;
 
-    final url = Uri.parse('http://localhost:8080/api/users/login'); // 실제 IP로 변경
+    final url = Uri.parse('/api/users/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -52,7 +52,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) => const HomeScreen(),
+          transitionsBuilder: (_, animation, __, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
       );
     } else {
       setState(() {
