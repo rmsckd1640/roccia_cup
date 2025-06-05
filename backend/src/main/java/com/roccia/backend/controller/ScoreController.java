@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import com.roccia.backend.repository.UserRepository;
 
 import java.util.List;
 
@@ -19,6 +22,7 @@ public class ScoreController {
 
     private final ScoreService scoreService;
     private final UserService userService;
+    private final UserRepository userRepository;
 
     // 점수 제출
     @PostMapping("/submit")
@@ -34,11 +38,12 @@ public class ScoreController {
     @GetMapping("/user")
     public ResponseEntity<List<ScoreRecord>> getUserScores(@RequestParam String teamName,
                                                            @RequestParam String userName) {
-        User user = userService.find(teamName, userName)
-                .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
+        User user = userRepository.findByTeamNameAndUserName(teamName, userName)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
 
         return ResponseEntity.ok(scoreService.getScores(user));
     }
+
 
     // 특정 섹터 점수 삭제
     @DeleteMapping("/delete/{teamName}/{userName}/{sector}")
