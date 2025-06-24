@@ -50,3 +50,11 @@ Thumbs.db
 frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-50x50@*.png
 frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-57x57@*.png
 frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-72x72@*.png
+
+*.jar
+
+**/xcshareddata/IDEWorkspaceChecks.plist
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+ios/Runner.xcodeproj/project.xcworkspace/
+ios/Runner.xcworkspace/xcshareddata/
