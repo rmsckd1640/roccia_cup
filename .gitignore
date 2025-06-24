@@ -1,3 +1,7 @@
+backend/gradle/wrapper/gradle-wrapper.jar
+frontend/ios/Runner.xcodeproj/project.xcworkspace/
+
+
 # =====================
 # 🛠️ 개발 환경/IDE 관련
 # =====================
