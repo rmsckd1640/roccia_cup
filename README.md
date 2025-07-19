@@ -1,6 +1,8 @@
 # Roccia Cup 🧗‍♂️  
 클라이밍 대회 점수 계산 및 실시간 랭킹 제공 앱
 
+**🔗 화면 구성 참고** [frontend/README.md](./frontend/README.md)
+
 ---
 
 ## 📌 프로젝트 설명
