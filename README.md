@@ -26,10 +26,13 @@ Roccia Cup은 클라이밍 동아리 대회에서의 점수 집계와 랭킹 계
 ![](https://img.shields.io/badge/FLUTTER-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![](https://img.shields.io/badge/DART-0175C2?style=for-the-badge&logo=dart&logoColor=white)
 ![](https://img.shields.io/badge/ANDROID%20STUDIO-3DDC84?style=for-the-badge&logo=android-studio&logoColor=white)
+![](https://img.shields.io/badge/INTELLIJ%20IDEA-FF4088?style=for-the-badge&logo=intellijidea&logoColor=white)
 
 ### ⚙️ Backend
 ![](https://img.shields.io/badge/SPRINGBOOT-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
 ![](https://img.shields.io/badge/JAVA-007396?style=for-the-badge&logo=java&logoColor=white)
+![](https://img.shields.io/badge/INTELLIJ%20IDEA-FF4088?style=for-the-badge&logo=intellijidea&logoColor=white)
+
 
 ### 🛢 Database
 <div align="left">
