@@ -50,9 +50,11 @@ Roccia Cup은 클라이밍 동아리 대회에서의 점수 집계와 랭킹 계
 
 ---
 
-## 🖥 시스템 아키텍처
+## 🖥 System Architecture
 
-![server architecture](https://github.com/user-attachments/assets/66c8cbc1-9173-473d-a69d-e47fc5f8ae1f)
+
+![sa](https://github.com/user-attachments/assets/c05ce0f4-9396-4cb7-8bb5-98d9eb57dfac)
+
 
 ---
 
